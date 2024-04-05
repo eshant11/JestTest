@@ -1,0 +1,92 @@
+import { shallow } from 'enzyme';
+import Form from './ToDo/Form';
+
+describe('Form component', () => {
+    let wrapper;
+
+    beforeEach(() => {
+        wrapper = shallow(<Form />);
+    });
+
+    afterEach(() => {
+        wrapper.unmount();
+    });
+
+    it('renders without crashing', () => {
+        expect(wrapper.exists()).toBe(true);
+    });
+
+    it('adds a new comment when the form is submitted with valid input', () => {
+        // Simulate user input
+        wrapper.find('input').simulate('change', { target: { value: 'Test comment' } });
+        // Submit the form
+        wrapper.find('form').simulate('submit');
+
+        // Check if the new comment is added to the DOM
+        expect(wrapper.find('.data').text()).toContain('Test comment');
+    });
+
+    it('does not add a new comment when the form is submitted with empty input', () => {
+        // Submit the form with empty input
+        wrapper.find('form').simulate('submit');
+
+        // Check if the comment was not added
+        expect(wrapper.find('.data').text()).not.toContain('');
+    });
+
+    it('removes all comments when the "Remove All" button is clicked', () => {
+        // Add some comments
+        wrapper.find('input').simulate('change', { target: { value: 'Comment 1' } });
+        wrapper.find('form').simulate('submit');
+        wrapper.find('input').simulate('change', { target: { value: 'Comment 2' } });
+        wrapper.find('form').simulate('submit');
+
+        // Click the "Remove All" button
+        wrapper.find('button').last().simulate('click');
+
+        // Check if all comments are removed
+        expect(wrapper.find('.data').children()).toHaveLength(0);
+    });
+
+    it('edits a comment when the "Edit" button is clicked', () => {
+        // Add a comment
+        wrapper.find('input').simulate('change', { target: { value: 'Original comment' } });
+        wrapper.find('form').simulate('submit');
+
+        // Click the "Edit" button
+        wrapper.find('.edit').simulate('click');
+
+        // Check if the comment input is updated with the original comment
+        expect(wrapper.find('input').props().value).toEqual('Original comment');
+    });
+
+    it('deletes a comment when the "Delete" button is clicked', () => {
+        // Add a comment
+        wrapper.find('input').simulate('change', { target: { value: 'Comment to delete' } });
+        wrapper.find('form').simulate('submit');
+
+        // Click the "Delete" button
+        wrapper.find('.delete').simulate('click');
+
+        // Check if the comment is deleted
+        expect(wrapper.find('.data').text()).not.toContain('Comment to delete');
+    });
+
+    it('updates a comment when the "Update" button is clicked', () => {
+        // Add a comment
+        wrapper.find('input').simulate('change', { target: { value: 'Original comment' } });
+        wrapper.find('form').simulate('submit');
+
+        // Click the "Edit" button
+        wrapper.find('.edit').simulate('click');
+
+        // Change the comment text
+        wrapper.find('input').simulate('change', { target: { value: 'Updated comment' } });
+
+        // Click the "Update" button
+        wrapper.find('button').last().simulate('click');
+
+        // Check if the comment is updated
+        expect(wrapper.find('.data').text()).toContain('Updated comment');
+    });
+});
